@@ -1,0 +1,25 @@
+# default position for all users
+# this will get randomized a bit
+pos:
+    lat: 48.8456222
+    lng: 2.3364526
+
+# api configuration
+# version: 4500 or 5100 (5100 need an hashkey)
+api:
+    version: 4500
+
+# hashserver configuration if using newest api
+# set active = true and key = yout-key
+hashserver:
+    active: false
+    key: your-key
+
+# if url is set to a proxy, it will be used for both login 
+# and connection to server
+proxy:
+    url: 
+
+# separator, use ',' or ';' depending on your local
+csv:
+    separator: ;

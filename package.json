@@ -1,0 +1,19 @@
+{
+  "name": "node-account-validate",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "niico",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "csv": "^1.1.0",
+    "js-yaml": "^3.7.0",
+    "lodash": "^4.17.4",
+    "pogobuf": "^1.9.2",
+    "winston": "^2.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.13.0"
+  }
+}
