@@ -109,13 +109,18 @@ class PogoHelper {
 
                 let batch = client.batchStart();
                 batch.claimCodename(this.login);
-                this.alwaysinit(batch).batchCall()
+                return this.alwaysinit(batch).batchCall()
+                        .then(responses => {
+                            if (!Array.isArray(responses)) responses = [responses];
+                            let response = _.find(responses, response => response._requestType == 403);
+                            if ([2, 3, 5].indexOf(response.status) >= 0) {
+                                logger.error('  WARNING: unable to claim user name.');
+                            }
 
-                .then(() => {
-                    let batch = client.batchStart();
-                    batch.markTutorialComplete(4, false, false);
-                    return this.alwaysinit(batch).batchCall();
-                });
+                            batch = client.batchStart();
+                            batch.markTutorialComplete(4, false, false);
+                            return this.alwaysinit(batch).batchCall();
+                        });
             }
 
         }).then(() => {
