@@ -1,7 +1,10 @@
+let POGOProtos = require('node-pogo-protos');
 let _ = require('lodash');
 let Promise = require('bluebird');
 let pogobuf = require('pogobuf');
 let logger = require('winston');
+
+const RequestType = POGOProtos.Networking.Requests.RequestType;
 
 class PogoHelper {
     constructor(config) {
@@ -45,8 +48,10 @@ class PogoHelper {
                     if (this.player.banned) throw new Error('Account banned!');
 
                     let tuto = this.player.tutorial_state || [];
-                    if (_.difference([0, 1, 3, 4, 7], tuto).length != 0) {
-                        return this.completeTutorial()
+                    if (true || _.difference([0, 1, 3, 4, 7], tuto).length != 0) {
+                        return Promise.delay(_.random(200.0, 300.0))
+                                .then(() => this.postLoginFlow())
+                                .then(() => this.completeTutorial())
                                 .then(() => {
                                     logger.info('  tutorial done.');
                                 });
@@ -56,11 +61,26 @@ class PogoHelper {
                 });
     }
 
+    postLoginFlow() {
+        logger.info('  post login flow...');
+        let batch = this.client.batchStart();
+        batch.downloadRemoteConfigVersion(1, '', '', '', +this.config.api.version);
+        return this.alwaysinit(batch).batchCall()
+                .then(responses => {
+                    // settings hash
+                    let dlSettings = _.find(responses, response => response._requestType == RequestType.DOWNLOAD_SETTINGS);
+                    this.settings_hash = dlSettings.hash;
+                    // inventory timestamp
+                    let inventory = _.find(responses, response => response._requestType == RequestType.GET_INVENTORY);
+                    this.inventory_timestamp = inventory.inventory_delta.new_timestamp_ms;
+                });
+    }
+
     completeTutorial() {
         let tuto = this.player.tutorial_state || [];
         let client = this.client;
 
-        return Promise.delay(_.random(1.0, 2.0))
+        return Promise.delay(_.random(100.0, 200.0))
         .then(() => {
             if (!_.includes(tuto, 0)) {
                 logger.info('  accept tos...');
@@ -70,7 +90,7 @@ class PogoHelper {
                 return this.alwaysinit(batch).batchCall();
             }
 
-        }).delay(_.random(1.0, 2.0)).then(() => {
+        }).delay(_.random(100.0, 200.0)).then(() => {
             if (!_.includes(tuto, 1)) {
                 logger.info('  set avatar...');
 
@@ -95,7 +115,7 @@ class PogoHelper {
                     });
             }
 
-        }).delay(_.random(4.0, 5.0)).then(() => {
+        }).delay(_.random(200.0, 400.0)).then(() => {
             if (!_.includes(tuto, 3)) {
                 logger.info('  encounter tutorial...');
 
@@ -105,13 +125,14 @@ class PogoHelper {
                 return this.always(batch).batchCall();
             }
 
-        }).delay(_.random(1.0, 2.0)).then(() => {
+        }).delay(_.random(200.0, 400.0)).then(() => {
             if (!_.includes(tuto, 4)) {
                 logger.info('  claim code name %s...', this.login);
 
                 let batch = client.batchStart();
                 batch.claimCodename(this.login);
                 return this.alwaysinit(batch).batchCall()
+                        .delay(_.random(300.0, 400.0))
                         .then(responses => {
                             if (!Array.isArray(responses)) responses = [responses];
                             let response = _.find(responses, response => response._requestType == 403);
@@ -125,7 +146,7 @@ class PogoHelper {
                         });
             }
 
-        }).delay(_.random(1.0, 2.0)).then(() => {
+        }).delay(_.random(200.0, 300.0)).then(() => {
             if (!_.includes(tuto, 7)) {
                 logger.info('  buddy tutorial...');
 
@@ -134,7 +155,7 @@ class PogoHelper {
                 return this.always(batch).batchCall();
             }
 
-        }).delay(_.random(1.0, 2.0));
+        }).delay(_.random(400.0, 500.0));
     }
 
     randGPSFloatBetween(min, max) {
@@ -149,17 +170,15 @@ class PogoHelper {
     }
 
     alwaysinit(batch) {
-        // return batch.checkChallenge()
-        //             .getHatchedEggs()
-        //             .getInventory(this.state.api.inventory_timestamp)
-        //             .checkAwardedBadges()
-        //             .downloadSettings(this.state.api.settings_hash);
-        return batch;
+        return batch.checkChallenge()
+                    .getHatchedEggs()
+                    .getInventory(this.inventory_timestamp)
+                    .checkAwardedBadges()
+                    .downloadSettings(this.settings_hash);
     }
 
     always(batch) {
-        // return this.alwaysinit(batch).getBuddyWalked();
-        return batch;
+        return this.alwaysinit(batch).getBuddyWalked();
     }
 
     signature() {
