@@ -42,6 +42,8 @@ class PogoHelper {
                     this.player = response.player_data;
                     logger.info('  get state ok');
 
+                    if (this.player.banned) throw new Error('Account banned!');
+
                     let tuto = this.player.tutorial_state || [];
                     if (_.difference([0, 1, 3, 4, 7], tuto).length != 0) {
                         return this.completeTutorial()
@@ -93,7 +95,7 @@ class PogoHelper {
                     });
             }
 
-        }).delay(_.random(1.0, 2.0)).then(() => {
+        }).delay(_.random(4.0, 5.0)).then(() => {
             if (!_.includes(tuto, 3)) {
                 logger.info('  encounter tutorial...');
 
