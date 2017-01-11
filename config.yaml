@@ -22,4 +22,4 @@ proxy:
 
 # separator, use ',' or ';' depending on your local
 csv:
-    separator: ;
+    separator: ','
