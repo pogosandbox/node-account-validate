@@ -24,7 +24,7 @@ fs.readFileAsync('accounts.csv', 'utf8')
         let pogo = new PogoHelper(config);
         return pogo.login(account.type, account.login, account.password)
                 .then(() => pogo.checkAndCompleTutorial());
-    });
+    }, {concurrency: 1});
 })
 .catch(e => {
     logger.error(e);

@@ -58,7 +58,7 @@ class PogoHelper {
         let tuto = this.player.tutorial_state || [];
         let client = this.client;
 
-        return Promise.delay(_.random(2.0, 5.0))
+        return Promise.delay(_.random(1.0, 2.0))
         .then(() => {
             if (!_.includes(tuto, 0)) {
                 logger.info('  accept tos...');
@@ -68,7 +68,7 @@ class PogoHelper {
                 return this.alwaysinit(batch).batchCall();
             }
 
-        }).then(() => {
+        }).delay(_.random(1.0, 2.0)).then(() => {
             if (!_.includes(tuto, 1)) {
                 logger.info('  set avatar...');
 
@@ -93,7 +93,7 @@ class PogoHelper {
                     });
             }
 
-        }).then(() => {
+        }).delay(_.random(1.0, 2.0)).then(() => {
             if (!_.includes(tuto, 3)) {
                 logger.info('  encounter tutorial...');
 
@@ -103,7 +103,7 @@ class PogoHelper {
                 return this.always(batch).batchCall();
             }
 
-        }).then(() => {
+        }).delay(_.random(1.0, 2.0)).then(() => {
             if (!_.includes(tuto, 4)) {
                 logger.info('  claim code name %s...', this.login);
 
@@ -123,7 +123,7 @@ class PogoHelper {
                         });
             }
 
-        }).then(() => {
+        }).delay(_.random(1.0, 2.0)).then(() => {
             if (!_.includes(tuto, 7)) {
                 logger.info('  buddy tutorial...');
 
@@ -132,7 +132,7 @@ class PogoHelper {
                 return this.always(batch).batchCall();
             }
 
-        });
+        }).delay(_.random(1.0, 2.0));
     }
 
     randGPSFloatBetween(min, max) {
