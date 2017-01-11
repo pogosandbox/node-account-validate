@@ -2,6 +2,7 @@ let fs = require('fs');
 let Promise = require('bluebird');
 let csvparse = require('csv-parse/lib/sync');
 let logger = require('winston');
+let _ = require('lodash');
 
 Promise.promisifyAll(fs);
 
@@ -15,6 +16,8 @@ fs.readFileAsync('accounts.csv', 'utf8')
         columns: true,
         delimiter: config.csv.separator,
     });
+
+    accounts = _.filter(accounts, account => account.type != '');
     
     return Promise.map(accounts, account => {
         logger.info('Account %s', account.login);
